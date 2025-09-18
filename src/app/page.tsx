@@ -2,18 +2,29 @@
 
 import { useState } from 'react';
 import PromptInput from '@/components/PromptInput';
-import CodeDisplay from '@/components/CodeDisplay';
-import type { GenerateCodeResponse } from '@/types';
+import FileTree from '@/components/FileTree';
+import CodeEditor from '@/components/CodeEditor';
+import type { GenerateCodeResponse, FileItem, ProjectState } from '@/types';
+import { 
+  createNewFile, 
+  createNewFolder, 
+  findFileById, 
+  deleteFileById, 
+  updateFileContent, 
+  addFileToFolder,
+  downloadAllFiles 
+} from '@/utils/fileUtils';
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [generatedCode, setGeneratedCode] = useState('');
-  const [codeLanguage, setCodeLanguage] = useState('typescript');
-  const [error, setError] = useState('');
+  const [projectState, setProjectState] = useState<ProjectState>({
+    files: [],
+    selectedFileId: null,
+    loading: false,
+    error: null
+  });
 
   const handlePromptSubmit = async (prompt: string) => {
-    setLoading(true);
-    setError('');
+    setProjectState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
       const response = await fetch('/api/generate', {
@@ -31,72 +42,146 @@ export default function Home() {
       const data: GenerateCodeResponse = await response.json();
       
       if (data.error) {
-        setError(data.error);
+        setProjectState(prev => ({ ...prev, error: data.error!, loading: false }));
       } else {
-        setGeneratedCode(data.code);
-        setCodeLanguage(data.language || 'typescript');
+        const newFiles = data.files || [];
+        setProjectState(prev => ({
+          ...prev,
+          files: [...prev.files, ...newFiles],
+          selectedFileId: newFiles[0]?.id || null,
+          loading: false
+        }));
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('An error occurred while generating code. Please try again.');
-    } finally {
-      setLoading(false);
+      setProjectState(prev => ({
+        ...prev,
+        error: 'An error occurred while generating code. Please try again.',
+        loading: false
+      }));
     }
   };
 
+  const handleFileSelect = (fileId: string) => {
+    setProjectState(prev => ({ ...prev, selectedFileId: fileId }));
+  };
+
+  const handleFileCreate = (parentPath: string, name: string, type: 'file' | 'folder') => {
+    const newItem = type === 'file' 
+      ? createNewFile(name, parentPath) 
+      : createNewFolder(name, parentPath);
+
+    if (parentPath === '') {
+      // Root level
+      setProjectState(prev => ({
+        ...prev,
+        files: [...prev.files, newItem].sort((a, b) => {
+          if (a.type !== b.type) {
+            return a.type === 'folder' ? -1 : 1;
+          }
+          return a.name.localeCompare(b.name);
+        })
+      }));
+    } else {
+      // Inside a folder
+      setProjectState(prev => ({
+        ...prev,
+        files: addFileToFolder(prev.files, parentPath, newItem)
+      }));
+    }
+
+    if (type === 'file') {
+      setProjectState(prev => ({ ...prev, selectedFileId: newItem.id }));
+    }
+  };
+
+  const handleFileDelete = (fileId: string) => {
+    setProjectState(prev => ({
+      ...prev,
+      files: deleteFileById(prev.files, fileId),
+      selectedFileId: prev.selectedFileId === fileId ? null : prev.selectedFileId
+    }));
+  };
+
+  const handleFileContentChange = (fileId: string, content: string) => {
+    setProjectState(prev => ({
+      ...prev,
+      files: updateFileContent(prev.files, fileId, content)
+    }));
+  };
+
+  const selectedFile = projectState.selectedFileId 
+    ? findFileById(projectState.files, projectState.selectedFileId) 
+    : null;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+    <div className="h-screen bg-white flex flex-col">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b px-6 py-3 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-bold text-gray-900">
               Code<span className="text-blue-600">Wave</span>
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              AI-powered coding sandbox. Describe what you want to build, and get instant code generation.
-            </p>
+            <div className="text-sm text-gray-500">
+              AI-Powered Code Editor
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            {projectState.files.length > 0 && (
+              <button
+                onClick={() => downloadAllFiles(projectState.files)}
+                className="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+              >
+                📥 Download Project
+              </button>
+            )}
+            <button
+              onClick={() => setProjectState({ files: [], selectedFileId: null, loading: false, error: null })}
+              className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              🗑️ Clear All
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <PromptInput onSubmit={handlePromptSubmit} loading={loading} />
-        </div>
+      {/* Prompt Input */}
+      <div className="border-b bg-gray-50 px-6 py-4 flex-shrink-0">
+        <PromptInput onSubmit={handlePromptSubmit} loading={projectState.loading} />
+      </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <div className="text-red-600 text-sm">
-                <strong>Error:</strong> {error}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div className="bg-gray-50 px-6 py-3 border-b">
-            <h2 className="text-lg font-semibold text-gray-800">Generated Code</h2>
-          </div>
-          <div className="p-6">
-            <CodeDisplay 
-              code={generatedCode} 
-              language={codeLanguage} 
-              loading={loading} 
-            />
+      {/* Error Display */}
+      {projectState.error && (
+        <div className="bg-red-50 border-b border-red-200 px-6 py-3 flex-shrink-0">
+          <div className="text-red-600 text-sm">
+            <strong>Error:</strong> {projectState.error}
           </div>
         </div>
-      </main>
+      )}
 
-      <footer className="bg-white border-t mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="text-center text-gray-600">
-            <p className="text-sm">
-              Built with Next.js, TailwindCSS, and Google Gemini AI
-            </p>
-          </div>
+      {/* Main Editor Layout */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* File Tree Sidebar */}
+        <div className="w-80 flex-shrink-0 bg-gray-50 border-r border-gray-200">
+          <FileTree
+            files={projectState.files}
+            selectedFile={projectState.selectedFileId}
+            onFileSelect={handleFileSelect}
+            onFileCreate={handleFileCreate}
+            onFileDelete={handleFileDelete}
+          />
         </div>
-      </footer>
+
+        {/* Code Editor */}
+        <div className="flex-1 flex flex-col">
+          <CodeEditor
+            file={selectedFile}
+            onChange={handleFileContentChange}
+          />
+        </div>
+      </div>
     </div>
   );
 }
