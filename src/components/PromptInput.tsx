@@ -14,11 +14,11 @@ export default function PromptInput({ onSubmit, loading = false }: PromptInputPr
   };
 
   const examplePrompts = [
-    "Create a login page with email and password fields",
-    "Build a responsive navbar with dark theme",
-    "Generate a React component for a todo list",
-    "Create a pricing table with three tiers",
-    "Build a contact form with validation"
+    "Create a React dashboard with TypeScript and charts",
+    "Build a Node.js REST API with authentication",
+    "Generate a Next.js e-commerce site with Stripe",
+    "Create a Vue.js todo app with dark theme",
+    "Build a Python Flask API with database"
   ];
 
   const handleExampleClick = (example: string) => {
@@ -26,54 +26,71 @@ export default function PromptInput({ onSubmit, loading = false }: PromptInputPr
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe what you want to build... (e.g., 'create a login page with email + password + dark theme')"
-            className="w-full px-4 py-4 text-gray-700 bg-white border-2 border-gray-200 rounded-lg resize-none focus:outline-none focus:border-blue-500 transition-colors"
-            rows={4}
-            disabled={loading}
-          />
-          <div className="absolute bottom-3 right-3 text-xs text-gray-400">
-            {prompt.length}/1000
+    <div className="w-full max-w-6xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
+          <div className="relative">
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe your project... (e.g., 'Create a modern React dashboard with dark theme, charts, and user authentication')"
+              className="w-full px-6 py-6 text-gray-100 bg-gray-800/90 backdrop-blur-sm border border-gray-600/50 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300 placeholder-gray-400 font-medium"
+              rows={4}
+              disabled={loading}
+            />
+            <div className="absolute bottom-4 right-4 flex items-center space-x-3">
+              <div className="text-xs text-gray-500">
+                {prompt.length}/2000
+              </div>
+              <div className="w-px h-4 bg-gray-600"></div>
+              <div className="text-xs text-gray-400 flex items-center space-x-1">
+                <span>⚡</span>
+                <span>AI Ready</span>
+              </div>
+            </div>
           </div>
         </div>
         
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
-            Try one of these examples:
+          <div className="text-sm text-gray-400 flex items-center space-x-2">
+            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            <span>Try these examples:</span>
           </div>
           <button
             type="submit"
             disabled={!prompt.trim() || loading}
-            className={`px-6 py-3 rounded-lg font-medium transition-all ${
+            className={`group px-8 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center space-x-3 ${
               loading || !prompt.trim()
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+                ? 'bg-gray-700 text-gray-400 cursor-not-allowed border border-gray-600'
+                : 'bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white shadow-2xl hover:shadow-purple-500/25 transform hover:scale-105 border border-purple-500/30'
             }`}
           >
             {loading ? (
-              <div className="flex items-center space-x-2">
-                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                <span>Generating...</span>
-              </div>
+              <>
+                <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                <span>Generating Magic...</span>
+              </>
             ) : (
-              'Generate Code'
+              <>
+                <span className="text-lg">✨</span>
+                <span>Generate Code</span>
+                <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
+                  <span className="text-xs">→</span>
+                </div>
+              </>
             )}
           </button>
         </div>
       </form>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap gap-3">
         {examplePrompts.map((example, index) => (
           <button
             key={index}
             onClick={() => handleExampleClick(example)}
             disabled={loading}
-            className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm bg-gray-700/50 backdrop-blur-sm text-gray-300 rounded-xl hover:bg-gray-600/60 hover:text-white transition-all duration-200 border border-gray-600/30 hover:border-gray-500/50 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transform"
           >
             {example}
           </button>

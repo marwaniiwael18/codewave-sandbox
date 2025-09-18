@@ -115,16 +115,23 @@ export default function Home() {
     : null;
 
   return (
-    <div className="h-screen bg-white flex flex-col">
+    <div className="h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b px-6 py-3 flex-shrink-0">
+      <header className="bg-gray-900/50 backdrop-blur-xl border-b border-gray-700/50 px-6 py-4 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Code<span className="text-blue-600">Wave</span>
-            </h1>
-            <div className="text-sm text-gray-500">
-              AI-Powered Code Editor
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">⚡</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  CodeWave
+                </h1>
+                <div className="text-xs text-gray-400 -mt-1">
+                  AI-Powered Development Suite
+                </div>
+              </div>
             </div>
           </div>
           
@@ -132,31 +139,38 @@ export default function Home() {
             {projectState.files.length > 0 && (
               <button
                 onClick={() => downloadAllFiles(projectState.files)}
-                className="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                className="group px-4 py-2 text-sm bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 transition-all duration-200 shadow-lg hover:shadow-green-500/25 flex items-center space-x-2"
               >
-                📥 Download Project
+                <span>�</span>
+                <span>Export Project</span>
               </button>
             )}
             <button
               onClick={() => setProjectState({ files: [], selectedFileId: null, loading: false, error: null })}
-              className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-all duration-200 border border-gray-600 hover:border-gray-500 flex items-center space-x-2"
             >
-              🗑️ Clear All
+              <span>🗑️</span>
+              <span>Clear</span>
             </button>
           </div>
         </div>
       </header>
 
       {/* Prompt Input */}
-      <div className="border-b bg-gray-50 px-6 py-4 flex-shrink-0">
+      <div className="border-b border-gray-700/50 bg-gray-800/30 backdrop-blur-sm px-6 py-6 flex-shrink-0">
         <PromptInput onSubmit={handlePromptSubmit} loading={projectState.loading} />
       </div>
 
       {/* Error Display */}
       {projectState.error && (
-        <div className="bg-red-50 border-b border-red-200 px-6 py-3 flex-shrink-0">
-          <div className="text-red-600 text-sm">
-            <strong>Error:</strong> {projectState.error}
+        <div className="bg-gradient-to-r from-red-900/20 to-pink-900/20 border-b border-red-500/30 px-6 py-4 flex-shrink-0">
+          <div className="flex items-center space-x-3">
+            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs">!</span>
+            </div>
+            <div className="text-red-300 text-sm">
+              <strong>Error:</strong> {projectState.error}
+            </div>
           </div>
         </div>
       )}
@@ -164,7 +178,7 @@ export default function Home() {
       {/* Main Editor Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* File Tree Sidebar */}
-        <div className="w-80 flex-shrink-0 bg-gray-50 border-r border-gray-200">
+        <div className="w-80 flex-shrink-0 bg-gray-900/70 backdrop-blur-sm border-r border-gray-700/50">
           <FileTree
             files={projectState.files}
             selectedFile={projectState.selectedFileId}
@@ -175,7 +189,7 @@ export default function Home() {
         </div>
 
         {/* Code Editor */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col bg-gray-900">
           <CodeEditor
             file={selectedFile}
             onChange={handleFileContentChange}

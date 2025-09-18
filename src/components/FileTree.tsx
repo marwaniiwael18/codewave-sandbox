@@ -41,55 +41,73 @@ const FileTreeItem = ({
 
   const getFileIcon = (item: FileItem) => {
     if (item.type === 'folder') {
-      return isExpanded ? '📂' : '📁';
+      return isExpanded ? (
+        <span className="text-blue-400">📂</span>
+      ) : (
+        <span className="text-gray-400">📁</span>
+      );
     }
     
     const ext = item.name.split('.').pop()?.toLowerCase();
     switch (ext) {
       case 'js':
+        return <span className="text-yellow-400">📄</span>;
       case 'jsx':
-        return '📄';
+        return <span className="text-blue-400">⚛️</span>;
       case 'ts':
+        return <span className="text-blue-500">🔷</span>;
       case 'tsx':
-        return '🔷';
+        return <span className="text-blue-400">⚛️</span>;
       case 'css':
-        return '🎨';
+        return <span className="text-pink-400">🎨</span>;
       case 'html':
-        return '🌐';
+        return <span className="text-orange-400">🌐</span>;
       case 'json':
-        return '📋';
+        return <span className="text-yellow-300">📋</span>;
       case 'md':
-        return '📝';
+        return <span className="text-gray-300">📝</span>;
+      case 'py':
+        return <span className="text-green-400">�</span>;
+      case 'java':
+        return <span className="text-red-400">☕</span>;
+      case 'go':
+        return <span className="text-cyan-400">🐹</span>;
       default:
-        return '📄';
+        return <span className="text-gray-400">📄</span>;
     }
   };
 
   return (
     <div>
       <div
-        className={`flex items-center py-1 px-2 cursor-pointer hover:bg-gray-100 group ${
-          selectedFile === item.id ? 'bg-blue-100 border-r-2 border-blue-500' : ''
+        className={`flex items-center py-2 px-3 cursor-pointer group transition-all duration-200 ${
+          selectedFile === item.id 
+            ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-r-2 border-purple-400' 
+            : 'hover:bg-gray-700/50'
         }`}
-        style={{ paddingLeft: `${depth * 20 + 8}px` }}
+        style={{ paddingLeft: `${depth * 20 + 12}px` }}
         onClick={handleToggle}
       >
-        <span className="mr-2 text-sm">{getFileIcon(item)}</span>
-        <span className="text-sm text-gray-700 flex-1">{item.name}</span>
+        <span className="mr-3 text-base">{getFileIcon(item)}</span>
+        <span className={`text-sm flex-1 transition-colors duration-200 ${
+          selectedFile === item.id ? 'text-white font-medium' : 'text-gray-300 group-hover:text-white'
+        }`}>
+          {item.name}
+        </span>
         
         {/* Action buttons */}
         {item.type === 'folder' && (
-          <div className="hidden group-hover:flex items-center space-x-1">
+          <div className="hidden group-hover:flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowNewFileInput(true);
                 setNewFileType('file');
               }}
-              className="p-1 text-xs text-gray-500 hover:text-blue-600"
+              className="p-1.5 text-xs text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded transition-all duration-200"
               title="New File"
             >
-              📄+
+              <span className="block w-3 h-3">📄</span>
             </button>
             <button
               onClick={(e) => {
@@ -97,10 +115,10 @@ const FileTreeItem = ({
                 setShowNewFileInput(true);
                 setNewFileType('folder');
               }}
-              className="p-1 text-xs text-gray-500 hover:text-blue-600"
+              className="p-1.5 text-xs text-gray-400 hover:text-green-400 hover:bg-green-500/10 rounded transition-all duration-200"
               title="New Folder"
             >
-              📁+
+              <span className="block w-3 h-3">📁</span>
             </button>
           </div>
         )}
@@ -110,17 +128,17 @@ const FileTreeItem = ({
             e.stopPropagation();
             onFileDelete(item.id);
           }}
-          className="hidden group-hover:block p-1 text-xs text-gray-500 hover:text-red-600"
+          className="hidden group-hover:block p-1.5 text-xs text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-all duration-200 ml-1"
           title="Delete"
         >
-          🗑️
+          <span className="block w-3 h-3">🗑️</span>
         </button>
       </div>
 
       {/* New file input */}
       {showNewFileInput && (
-        <div style={{ paddingLeft: `${(depth + 1) * 20 + 8}px` }} className="py-1">
-          <div className="flex items-center space-x-2">
+        <div style={{ paddingLeft: `${(depth + 1) * 20 + 12}px` }} className="py-2 animate-fadeIn">
+          <div className="flex items-center space-x-3 bg-gray-800/50 rounded-lg p-2 border border-gray-600/50">
             <span className="text-sm">{newFileType === 'file' ? '📄' : '📁'}</span>
             <input
               type="text"
@@ -130,19 +148,19 @@ const FileTreeItem = ({
                 if (e.key === 'Enter') handleNewFile();
                 if (e.key === 'Escape') setShowNewFileInput(false);
               }}
-              className="flex-1 text-sm px-2 py-1 border rounded"
+              className="flex-1 text-sm px-3 py-1 bg-gray-700 text-gray-200 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
               placeholder={`New ${newFileType} name...`}
               autoFocus
             />
             <button
               onClick={handleNewFile}
-              className="text-xs text-green-600 hover:text-green-700"
+              className="text-sm text-green-400 hover:text-green-300 px-2 py-1 hover:bg-green-500/10 rounded transition-all duration-200"
             >
               ✓
             </button>
             <button
               onClick={() => setShowNewFileInput(false)}
-              className="text-xs text-red-600 hover:text-red-700"
+              className="text-sm text-red-400 hover:text-red-300 px-2 py-1 hover:bg-red-500/10 rounded transition-all duration-200"
             >
               ✕
             </button>
@@ -178,15 +196,27 @@ export default function FileTree({
   onFileDelete 
 }: FileTreeProps) {
   return (
-    <div className="bg-white border-r border-gray-200 h-full overflow-y-auto">
-      <div className="p-3 border-b border-gray-200">
-        <h3 className="text-sm font-semibold text-gray-700">Project Files</h3>
+    <div className="bg-gray-900/70 backdrop-blur-sm border-r border-gray-700/50 h-full overflow-y-auto">
+      <div className="p-4 border-b border-gray-700/50">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-200 flex items-center space-x-2">
+            <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+            <span>Project Explorer</span>
+          </h3>
+          <div className="text-xs text-gray-500 bg-gray-700/50 px-2 py-1 rounded">
+            {files.length} files
+          </div>
+        </div>
       </div>
       
       <div className="py-2">
         {files.length === 0 ? (
-          <div className="p-4 text-center text-gray-500 text-sm">
-            No files yet. Generate code to create files automatically.
+          <div className="p-6 text-center">
+            <div className="text-4xl mb-3 opacity-50">📁</div>
+            <div className="text-sm text-gray-400 mb-1">No files yet</div>
+            <div className="text-xs text-gray-500">
+              Generate code to create files automatically
+            </div>
           </div>
         ) : (
           files.map((file) => (
