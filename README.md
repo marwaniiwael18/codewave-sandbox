@@ -1,4 +1,5 @@
 # ⚡ CodeWave - AI-Powered Development Suite
+<img width="1920" height="1078" alt="Screenshot 2025-09-19 at 17 52 20" src="https://github.com/user-attachments/assets/e60d539c-a131-4245-a6a1-402ef718349c" />
 
 <div align="center">
   <img src="https://img.shields.io/badge/Next.js-15.5.3-black?style=for-the-badge&logo=next.js" alt="Next.js">
